@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="apple-touch-icon" sizes="76x76" href="/Content/material-dashboard/assets/img/apple-icon.png">
+	<link rel="icon" type="image/png" href="/Content/material-dashboard/assets/img/favicon.png">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>TV 편성표</title>
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+	@RenderPage("~/Views/Shared/_Css.cshtml")
+</head>
+<body class="">
+	@RenderBody()
+
+	<!--
+		[2019-01-07] 현재까지 작업상황
+		프로그램을 누르면 레이어 팝업 프로그램 리스트가 뜨도록 하는 것 까지 왔다
+		근데 닫기 버튼인 X 버튼이 자리를 못잡는것 같다 material 디자인 레이어 팝업을
+		찾아 보던가 디자인을 잡아야 한다.
+	-->
+	<!-- 프로그램 리스트 모달 창 -->
+	<div class="modal fade" id="layerpop">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- header -->
+				<div class="modal-header">
+					<!-- 닫기(x) 버튼 -->
+					<button type="button" class="close" data-dismiss="modal">
+						@*<span class="glyphicon glyphicon-remove-circle" style="font-size: 22pt"></span>*@
+						<i class="material-icons" data-notify="icon">close</i>
+					</button>
+					<!-- header title -->
+					<h4 class="modal-title">편성표 리스트</h4>
+				</div>
+				<!-- body -->
+				<div class="modal-body">
+					<ul id="programmList" class="list-group"></ul>
+				</div>
+				<!-- Footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@RenderPage("~/Views/Shared/_Scripts.cshtml");
+</body>
+</html>

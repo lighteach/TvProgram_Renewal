@@ -26,7 +26,9 @@ namespace TvProgramList.Libs
 		private string GetProgramHtml(int chNum)
 		{
 			string htmlPath = $"{HtmlFileRoot}\\chn_{chNum}.html";
-			string html = File.ReadAllText(htmlPath, Encoding.GetEncoding("euc-kr"));
+			string html = "";
+			if (File.Exists(htmlPath))
+				html = File.ReadAllText(htmlPath, Encoding.GetEncoding("euc-kr"));
 			return html;
 		}
 		#endregion
