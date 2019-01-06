@@ -3,3 +3,6 @@
 ################################################################################
 
 /TvProgramList/obj/Release
+/TvProgramList/bin
+/TvProgramList/obj
+/.vs
