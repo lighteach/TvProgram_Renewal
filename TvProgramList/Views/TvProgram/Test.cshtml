@@ -1,0 +1,235 @@
+﻿@{
+	// 테스트 뷰
+	// 여기서 각종 테스트 코드를 테스트 해보고 컨펌되면 Index에 반영한다.
+    ViewBag.Title = "Test";
+}
+
+<style type="text/css">
+	.adsense {
+		background-color: white;
+		width: auto;
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		vertical-align: middle;
+		color: black;
+		margin-top: 5px;
+		margin-bottom: 10px;
+	}
+
+	#tabBtn .tab-content {
+		color: white;
+		background-color: #428bca;
+		padding: 5px 15px;
+	}
+
+	#tabBtn .nav-pills > li > a {
+		border-radius: 0;
+	}
+
+	.list_highlight {
+		background-color: blueviolet;
+		color: white;
+	}
+
+	/*.img_alarm {
+		width:26%;display:block;margin:auto;
+		-webkit-filter: hue-rotate(180deg);
+		filter: hue-rotate(180deg);
+	}*/
+</style>
+<script>
+	var HasChannel = function (channels, chName) {
+		var blRtn = false;
+		var defGW = channels;
+		defGW.forEach(function (val, idx) {
+			chName = chName.toLowerCase();
+			if (chName.indexOf(val) != -1) {
+				blRtn = true;
+			}
+		});
+		return blRtn;
+	}
+
+	var ShowModal = function (chID) {
+		$.get("/TvProgram/GetProgrammeList?channelId=" + chID, "", function (rtn) {
+			$("#programmList").empty();
+			$(".modal-title").text(chID);	// 모달 타이틀
+			if (rtn != null) {
+				var half = Math.ceil(rtn.length / 2) - 1;
+				var appendTarget = "programmList";
+				$.each(rtn, function (idx, prog) {
+					var head = "<b>" + prog.Start + "</b> " + prog.Title + (prog.Episode == null ? "" : "(" + prog.Episode + ")");
+					var ageLimit = prog.Rating;
+					var row = "<li class=\"list-group-item" + (prog.BeOnAir ? " active" : "") + "\">"
+					+ "<table>"
+					+ "<tr><td style=\"width:90%\">"
+					+ "	<h4 class=\"list-group-item-heading\">" + head + "</h4>"
+					+ "	<p class=\"list-group-item-text\">" + ageLimit + "</p>"
+					+ "</td><td class=\"text-right text-nowrap\" style=\"width:10%\">"
+					+ "    <button type=\"button\" onclick=\"alarmToggle(this, '" + chID + "', '" + prog.Title + "', '" + prog.Start + "')\" class=\"btn btn-default\">"
+					+ "		<span class=\"glyphicon glyphicon-time\"></span> Alarm"
+					+ "	</button>"
+					+ "</td></tr>"
+					+ "</table>"
+					+ "</li>";
+
+					if (idx == half) {
+						var adsense = "<li class=\"list-group-item\">"
+						+ "<!-- 편성표2 -->"
+						+ "<ins class=\"adsbygoogle\""
+						+ "	style=\"display:block\""
+						+ "	data-ad-client=\"ca-pub-9553320581194506\""
+						+ "	data-ad-slot=\"5520393603\""
+						+ "	data-ad-format=\"auto\"></ins>"
+						+ "</li>";
+						row = adsense + row;
+					}
+
+					$("#" + appendTarget).append(row);
+				});
+			}
+
+			$("#layerpop").modal();
+		});
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	// alarmToggle
+	//----------------------------------------------------------------------------------------------------------------
+	var alarmToggle = function (btn, chId, title, time) {
+		btn = $(btn);
+		var btnStatus = "on";
+		if (btn.hasClass("btn-default")) {
+			btn.removeClass("btn-default");
+			btn.addClass("btn-success");
+		} else if (btn.hasClass("btn-success")) {
+			btn.removeClass("btn-success");
+			btn.addClass("btn-default");
+			btnStatus = "off";
+		}
+
+		if (IsWebView) {
+			var setStatusMsg = "";
+			if (btnStatus == "on") {
+				setStatusMsg = time + "에 알람이 설정 되었습니다.";
+			} else if (btnStatus == "off") {
+				setStatusMsg = "해당 프로그램의 알람이 설정 해제 되었습니다.";
+			}
+
+			//NativeCall.showToast(setStatusMsg);
+			// 채널명, 프로그램명, 시간
+			// [2017-03-16] 알람 등록 안드로이드 네이티브 함수 등록은 성공하였다.
+			// 이제 실제로 알람이 등록되도록 해야 한다.
+			NativeCall.setAlarm(chId, title, time);
+		}
+	}
+
+	var IsWebView = function () {
+		var userAgent = navigator.userAgent;
+		return (userAgent.indexOf("Android") != -1 ? true : false);
+	}
+
+	$(document).ready(function () {
+		// 웹뷰 상태이면 GNB를 없애버림
+		if (IsWebView()) {
+			$(".navbar").remove();
+			$(document.body).css("padding-top", "0px");
+			$(document.body).css("height", "1000px");
+		}
+
+		$("#layerpop").on("shown.bs.modal", function () {
+			(adsbygoogle = window.adsbygoogle || []).push({});
+		});
+
+		$("#tabBtn ul a").click(function () {
+			$("#tab1btns,#tab2btns,#tab3btns").each(function (idx, tab) {
+				$(tab).hide();
+			});
+			var id = $(this).attr("id");
+			$("#" + id + "btns").show();
+		});
+
+		$("#tab1").click();
+
+
+		$.get("/TvProgram/GetChannelList", "", function (rtn) {
+			if (rtn != null) {
+				var chList = rtn;
+				var chGroundWave = [];	//지상파
+				var chSky = [];
+				var chCable = [];
+				$.each(chList, function (idx, channel) {
+					var displayName = channel.DisplayName;
+					if (HasChannel(["kbs", "mbc", "sbs", "ebs"], displayName)) {
+						chGroundWave.push(channel);
+					} else if (HasChannel(["sky"], displayName)) {
+						chSky.push(channel);
+					} else {
+						chCable.push(channel);
+					}
+				});
+				var data = [
+							["#tab1btns", chGroundWave]
+							, ["#tab2btns", chCable]
+							, ["#tab3btns", chSky]
+						];
+				$.each(data, function (idx, tp) {
+					$(tp[0]).empty();
+
+					$.each(tp[1], function (idx, ch) {
+						var displayName = ch.DisplayName;
+						var icon = ch.Icon;
+						var id = ch.Id;
+						var btn = "<button type=\"button\" class=\"btn btn-info\" channel-id=\"" + id + "\" onclick=\"ShowModal('" + id + "')\" style=\"border-radius: 0 !important;\">" + displayName + "</button>";
+						$(tp[0]).append(btn);
+					});
+				});
+
+			}
+		});
+	});
+</script>
+<div id="tabBtn" class="container">
+	<ul class="nav nav-pills">
+		<li class="active">
+			<a href="#" id="tab1" data-toggle="tab">지상파</a>
+		</li>
+		<li>
+			<a href="#" id="tab2" data-toggle="tab">케이블</a>
+		</li>
+		<li>
+			<a href="#" id="tab3" data-toggle="tab">SkyLife</a>
+		</li>
+	</ul>
+
+	<div class="tab-content clearfix">
+		<div class="tab-pane active" id="tpGw">
+			<!-- 편성표 -->
+			<ins class="adsbygoogle"
+				 style="display:block"
+				 data-ad-client="ca-pub-9553320581194506"
+				 data-ad-slot="2795756408"
+				 data-ad-format="auto"></ins>
+			<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+			</script>
+			<div id="tab1btns" style="display:none">
+				<h3>편성표 업데이트 중입니다.</h3>
+			</div>
+			<div id="tab2btns" style="display:none">
+				<h3>편성표 업데이트 중입니다.</h3>
+			</div>
+			<div id="tab3btns" style="display:none">
+				<h3>편성표 업데이트 중입니다.</h3>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+	$(".adsbygoogle").each(function () {
+
+	});
+</script>

@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>TV 편성표</title>
+	@*@Styles.Render("~/Content/css")*@
+	<link href="~/Content/bootstrap.css" rel="stylesheet" />
+	<link href="~/Content/Site.css" rel="stylesheet" />
+	@Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/modernizr")
+	<style type="text/css">
+		.nav-pills { margin-top:35px; }
+
+		.searchWrap { overflow:hidden;height:auto; }
+		.search_left { display:inline-block;width: 70%; }
+		.search_right { display:inline-block; }
+		#txtSearch { max-width: 100%; }
+		#pnlSearchResult {
+			overflow:hidden;
+			height:auto;
+			width:90%;
+			background-color:white;
+			border: 5px solid white;
+			display:none
+		}
+	</style>
+
+	<script>
+		$(document).ready(function () {
+			$("#txtSearch").keypress(function (e) {
+				if (e.keyCode == 13) {
+					$(".searchBtn").click();
+				}
+			});
+
+			$(".searchBtn").click(function () {
+				var searchText = $("#txtSearch").val().trim();
+				if (searchText.length == 0) {
+					alert("검색 할 채널/프로그램명을 입력하여 주세요.");
+					return false;
+				}
+
+				$("#pnlSearchResult").empty();
+				$("#pnlSearchResult").data("status", "searching");
+				var searchMsgHtml = "검색 중입니다. 잠시만 기다려주세요.<a href='javascript:void(0);' onclick='searchCancel()'>취소</a>";
+				$("#pnlSearchResult").html(searchMsgHtml);
+
+				if ($("#pnlSearchResult").css("display") == "none")
+					$("#pnlSearchResult").show();
+
+				$.post("/TvProgram/SearchProgram", { searchText: searchText }, function (rtn) {
+					if (rtn.Result == "OK") {
+						$("#pnlSearchResult").empty();
+						// 여기서 태깅 채널 버튼 바인딩 처리
+						// 문제발생!!
+						// 결과 리스트 모델을 OllehProram으로 해버렸더니 결과로서 적합하지 않다
+						// 찾기 결과 모델을 별도로 만들어야 하며 채널 버튼으로 보여줄껀지 아니면
+						// 해당 프로그램의 상세 정보를 보여줄껀지 결정해야한다. 니미...
+						// ------------------------------------------------------------------------------------------------------
+						// 지금으로썬 해당 프로그램이 있는 채널 버튼을 보여주는게 맞는것 같다..
+
+						var resultCloseHtml = "<a href='javascript:void(0);' onclick='searchCancel()'>닫기</a><br />";
+						$("#pnlSearchResult").append(resultCloseHtml);
+						$.each(rtn.FoundList, function (idx, ch) {
+						    var displayName = ch.chName + "(" + ch.chNum + ")";
+						    var btn = "<button type=\"button\" class=\"btn btn-info\" channel-id=\"" + ch.chNum + "\" onclick=\"ShowModal('" + ch.chNum + "', '" + ch.chName + "')\" style=\"border-radius: 0 !important;\">" + displayName + "</button>";
+						    $("#pnlSearchResult").append(btn);
+						});
+
+					} else if (rtn.Result == "Empty") {
+						$("#pnlSearchResult").empty();
+						var resultMsgHtml = "검색 결과가 없습니다.<a href='javascript:void(0);' onclick='searchCancel()'>닫기</a>";
+						$("#pnlSearchResult").html(resultMsgHtml);
+					}
+					$("#pnlSearchResult").data("status", "complete");
+				});
+			});
+
+		});
+
+		function searchCancel() {
+			$("#pnlSearchResult").hide();
+		}
+	</script>
+</head>
+<body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<span class="navbar-brand" style="margin-left:5px">TV 편성표(@DateTime.Now.ToString("yyyy-MM-dd"))</span>
+			</div>
+		</div>
+		<!-- 검색 시작 -->
+		<div class="searchWrap">
+			<div class="search_left">
+				<input type="text" id="txtSearch" placeholder="채널/프로그램 찾기" class="form-control">
+			</div>
+			<div class="search_right">
+				<button type="button" class="btn btn-default btn-sm btn-primary searchBtn">
+					<span class="glyphicon glyphicon-search"></span> Search
+				</button>
+			</div>
+			<div id="pnlSearchResult">
+			</div>
+		</div>
+		<!-- 검색 끝 -->
+	</div>
+	<div class="container">
+		@RenderBody()
+		<hr />
+	</div>
+
+	<!-- 프로그램 리스트 모달 창 -->
+	<div class="modal fade" id="layerpop">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- header -->
+				<div class="modal-header">
+					<!-- 닫기(x) 버튼 -->
+					<button type="button" class="close" data-dismiss="modal">
+						<span class="glyphicon glyphicon-remove-circle" style="font-size: 22pt"></span>
+					</button>
+					<!-- header title -->
+					<h4 class="modal-title">편성표 리스트</h4>
+				</div>
+				<!-- body -->
+				<div class="modal-body">
+					<ul id="programmList" class="list-group"></ul>
+				</div>
+				<!-- Footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@Scripts.Render("~/bundles/bootstrap")
+	@RenderSection("scripts", required: false)
+</body>
+</html>

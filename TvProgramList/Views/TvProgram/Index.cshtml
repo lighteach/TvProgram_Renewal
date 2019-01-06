@@ -1,0 +1,215 @@
+﻿@{
+	ViewBag.Title = "Index";
+}
+<style type="text/css">
+
+	.adsense {
+		background-color: white;
+		width: auto;
+		height: 50px;
+		line-height: 50px;
+		text-align: center;
+		vertical-align: middle;
+		color: black;
+		margin-top: 5px;
+		margin-bottom: 10px;
+	}
+
+	#tabBtn .tab-content {
+		color: white;
+		background-color: #428bca;
+		padding: 5px 15px;
+	}
+
+	#tabBtn .nav-pills > li > a {
+		border-radius: 0;
+	}
+
+	.list_highlight {
+		background-color: blueviolet;
+		color: white;
+	}
+</style>
+<script>
+	var HasChannel = function (channels, chName) {
+		var blRtn = false;
+		var defGW = channels;
+		defGW.forEach(function (val, idx) {
+			chName = chName.toLowerCase();
+			if (chName.indexOf(val) != -1) {
+				blRtn = true;
+			}
+		});
+		return blRtn;
+	}
+
+	var ShowModal = function (chNum, chName) {
+		$.get("/TvProgram/GetOllehProgramList?chNum=" + chNum + "&chName=" + chName, "", function (rtn) {
+			$("#programmList").empty();
+			var modalTitle = chName + "(" + chNum + ")";
+			$(".modal-title").text(modalTitle);	// 모달 타이틀
+			if (rtn != null) {
+				var half = Math.ceil(rtn.length / 2) - 1;
+				var appendTarget = "programmList";
+				$.each(rtn, function (idx, prog) {
+					var head = "<b>" + prog.time + "</b> " + prog.title + "(" + prog.ageLimit + ")";
+					var ageLimit = prog.ageLimit;
+					var row = "<li class=\"list-group-item" + (prog.BeOnAir ? " active" : "") + "\">"
+					+ "<table>"
+					+ "<tr><td style=\"width:90%\">"
+					+ "	<h4 class=\"list-group-item-heading\">" + head + "</h4>"
+					+ "	<p class=\"list-group-item-text\">" + ageLimit + "</p>"
+					+ "</td><td class=\"text-right text-nowrap\" style=\"width:10%\">"
+					+ "    <button type=\"button\" onclick=\"alarmToggle(this, '" + prog.Title + "', '" + prog.Start + "')\" class=\"btn btn-default\">"
+					+ "		<span class=\"glyphicon glyphicon-time\"></span> Alarm"
+					+ "	</button>"
+					+ "</td></tr>"
+					+ "</table>"
+					+ "</li>";
+
+					if (idx == half) {
+						var adsense = "<li class=\"list-group-item\">"
+						+ "<!-- 편성표2 -->"
+						+ "<ins class=\"adsbygoogle\""
+						+ "	style=\"display:block\""
+						+ "	data-ad-client=\"ca-pub-9553320581194506\""
+						+ "	data-ad-slot=\"5520393603\""
+						+ "	data-ad-format=\"auto\"></ins>"
+						+ "</li>";
+						row = adsense + row;
+					}
+
+					$("#" + appendTarget).append(row);
+				});
+			}
+
+			$("#layerpop").modal();
+		});
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+	// alarmToggle
+	//----------------------------------------------------------------------------------------------------------------
+	var alarmToggle = function (btn, title, time) {
+		btn = $(btn);
+		var btnStatus = "on";
+		if (btn.hasClass("btn-default")) {
+			btn.removeClass("btn-default");
+			btn.addClass("btn-success");
+		} else if (btn.hasClass("btn-success")) {
+			btn.removeClass("btn-success");
+			btn.addClass("btn-default");
+			btnStatus = "off";
+		}
+
+		if (IsWebView) {
+			var setStatusMsg = "";
+			if (btnStatus == "on") {
+				setStatusMsg = time + "에 알람이 설정 되었습니다.";
+			} else if (btnStatus == "off") {
+				setStatusMsg = "해당 프로그램의 알람이 설정 해제 되었습니다.";
+			}
+
+			//NativeCall.showToast(setStatusMsg);
+			// 채널명, 프로그램명, 시간
+			var chName = $(".modal-title").text();
+			
+			NativeCall.setAlarm(chName, title, time);
+		}
+	}
+
+	var IsWebView = function () {
+		var userAgent = navigator.userAgent;
+		return (userAgent.indexOf("Android") != -1 ? true : false);
+	}
+
+	$(document).ready(function () {
+		// 웹뷰 상태이면 GNB를 없애버림
+		if (IsWebView()) {
+			//$(".navbar").remove();
+			// navbar를 통째로 날렸더니 검색창도 날라가버렸다.. 그래서 컨테이너 개체만 날림
+			$(".navbar").find(".container").remove();
+			// navbar의 min-height도 조정해줘야 한다..
+			$(".navbar").css("min-height", "30px");
+			
+			$(document.body).css("padding-top", "0px");
+			$(document.body).css("height", "1000px");
+		}
+
+		$("#layerpop").on("shown.bs.modal", function () {
+			(adsbygoogle = window.adsbygoogle || []).push({});
+		});
+
+		// 이 부분에서 GetOllehTabList를 호출하여 큰 분류 탭 버튼을 바인딩하고
+		// 각 탭에 할당되어 있는 div에 편성표를 바인딩하는 작업을 진행하자 [2017-03-31]
+		$.get("/TvProgram/GetOllehMainClassifies", "", function (rtn) {
+			if (rtn != null) {
+				$(".nav-pills").empty();
+				$.each(rtn, function (idx, classify) {
+					var active = " class=\"active\"";
+					var li = "<li" + (idx == 0 ? active : "") + ">"
+					+ "	<a href=\"#\" id=\"tab" + String(idx) + "\" data-toggle=\"tab\">" + classify + "</a>"
+					"</li>";
+					$(".nav-pills").append(li);
+				});
+
+				$("#tabBtn ul a").click(function () {
+					$(".tabArea").each(function (idx, area) {
+						$(area).hide();
+					});
+					var id = $(this).attr("id");
+
+					// 각 분류 별 편성표 바인딩
+					var tabIdx = id.replace("tab", "");
+					var tabAreaId = id + "Area";
+					$.get("/TvProgram/GetOllehChannelList?idx=" + tabIdx, "", function (rtn) {
+						var tabArea = "<div id=\"" + tabAreaId + "\" class=\"tabArea\" style=\"display:none\">";
+						if (rtn != null) {
+							$("#" + tabAreaId).remove();
+							$.each(rtn, function (idx, ch) {
+								var displayName = ch.chName + "(" + ch.chNum + ")";
+								var btn = "<button type=\"button\" class=\"btn btn-info\" channel-id=\"" + ch.chNum + "\" onclick=\"ShowModal('" + ch.chNum + "', '" + ch.chName + "')\" style=\"border-radius: 0 !important;\">" + displayName + "</button>";
+								tabArea += btn;
+							});
+							tabArea += "</div>";
+
+						} else {
+							tabArea += "	<h3>편성표 업데이트 중입니다.</h3>"
+							tabArea += "</div>";
+						}
+
+						$("#tpGw").after(tabArea);
+						$("#" + tabAreaId).show();
+					});
+				});
+
+				$("#tab0").click();
+			}
+		});
+	});
+</script>
+<div id="tabBtn" class="container">
+	<ul class="nav nav-pills">
+	</ul>
+
+	<div class="tab-content clearfix">
+		<div class="tab-pane active" id="tpGw">
+			<!-- 편성표 -->
+			<ins class="adsbygoogle"
+			     style="display:block"
+			     data-ad-client="ca-pub-9553320581194506"
+			     data-ad-slot="2795756408"
+			     data-ad-format="auto"></ins>
+			<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+			</script>
+		</div>
+	</div>
+</div>
+
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+	$(".adsbygoogle").each(function () {
+		
+	});
+</script>
