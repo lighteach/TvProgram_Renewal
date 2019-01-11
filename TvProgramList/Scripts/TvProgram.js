@@ -160,7 +160,7 @@ $(document).ready(function () {
 				dots: true,
 				infinite: false,
 				arrows: false,
-				slidesToShow: 5,
+				slidesToShow: 3,
 				slidesToScroll: 3
 			});
 
