@@ -27,11 +27,20 @@
     function initMap() {
         //{ lat: -34.397, lng: 150.644 }
         //37.477554, 126.957062
+        var homeLat = 37.477284;
+        var homeLng = 126.957062;
         map = new google.maps.Map(document.getElementById("map")
             , {
-                center: { lat: 37.477554, lng: 126.957062 }
+                center: { lat: homeLat, lng: homeLng }
                 , zoom: 19
             });
+
+        var markerImg = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+        var marker = new google.maps.Marker({
+            position: { lat: homeLat, lng: homeLng }
+            , map: map
+            , icon: markerImg
+        })
     }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjV9-GukwDHcj2HiFkEAu8AvwRqHJjeXg&callback=initMap"></script>
