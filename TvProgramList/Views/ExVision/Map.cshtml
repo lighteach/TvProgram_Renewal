@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Views/Shared/_PersonalLayout.cshtml";
+    ViewBag.Title = "Map";
+}
+
+<section class="banner-area">
+    <div class="container">
+        <div class="row fullscreen align-items-center justify-content-between">
+            @*<div class="col-lg-6 col-md-6 banner-left">
+                <h6>This is me</h6>
+                <h1>Philip Gilbert</h1>
+                <p>
+                    You will begin to realise why this exercise is called the Dickens Pattern with reference to the ghost showing Scrooge some different futures.
+                </p>
+                <a href="#" class="primary-btn text-uppercase">discover now</a>
+            </div>
+            <div class="col-lg-6 col-md-6 banner-right d-flex align-self-end">
+                <img class="img-fluid" src="img/hero-img.png" alt="">
+            </div>*@
+            <div id="map" style="width:100%;height:600px"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+    var map;
+    function initMap() {
+        //{ lat: -34.397, lng: 150.644 }
+        //37.477554, 126.957062
+        map = new google.maps.Map(document.getElementById("map")
+            , {
+                center: { lat: 37.477554, lng: 126.957062 }
+                , zoom: 19
+            });
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjV9-GukwDHcj2HiFkEAu8AvwRqHJjeXg&callback=initMap"></script>
+
+
