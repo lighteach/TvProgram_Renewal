@@ -648,6 +648,7 @@
     <Content Include="Views\Shared\_Scripts.cshtml" />
     <Content Include="Views\TvProgram\Index_Renewal.cshtml" />
     <Content Include="Views\ExVision\Map.cshtml" />
+    <Content Include="Views\Shared\_PersonalLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
