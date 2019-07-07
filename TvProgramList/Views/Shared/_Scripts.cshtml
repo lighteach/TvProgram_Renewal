@@ -1,5 +1,10 @@
 ﻿@{
-    Layout = null;
+	Layout = null;
+	string CashPreventCode = "201901162000";
+	if(Request.Url.Host.Contains("localhost") || Request.Url.Host.Contains("dev."))
+	{
+		CashPreventCode = DateTime.Now.ToString("yyyyMMddHHmmss");
+	}
 }
 <!-- Core JS Files -->
 <script src="/Content/material-dashboard/assets/js/core/jquery.min.js"></script>
@@ -45,5 +50,5 @@
 <!-- Material Dashboard DEMO methods, don't include it in your project! -->
 <script src="/Content/material-dashboard/assets/demo/demo.js"></script>
 <script src="/Content/material-dashboard/assets/slick/slick.js"></script>
-<script src="~/Scripts/TvProgram.js"></script>
+<script src="~/Scripts/TvProgram.js?v=@CashPreventCode"></script>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>

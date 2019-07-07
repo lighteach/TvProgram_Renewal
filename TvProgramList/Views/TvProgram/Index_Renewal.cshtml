@@ -1,0 +1,125 @@
+﻿@using TvProgramList.Models.YouTube;
+@{
+	Layout = "~/Views/Shared/_Layout_Renewal.cshtml";
+
+	YouTubeVideoTop3Model YoutubeVideoTop3 = (YouTubeVideoTop3Model)ViewBag.YoutubeVideoTop3;
+}
+<script>
+	@if (YoutubeVideoTop3.items.Count > 0)
+	{
+	<text>
+	var ytTop3 = {
+		items: [
+	@foreach (Item item in YoutubeVideoTop3.items)
+	{
+		string comma = (YoutubeVideoTop3.items.IndexOf(item) > 0 ? "," : "");
+		<text>
+		@(comma){
+				id: "@item.id"
+				, channelTitle: "@item.snippet.channelTitle"
+				, url: "@item.snippet.thumbnails.medium.url"
+				, width: @item.snippet.thumbnails.medium.width
+				, height: @item.snippet.thumbnails.medium.height
+				, title: "@item.snippet.title"
+				, description: "@item.snippet.description.Replace("\n", "")"
+		}
+		</text>
+	}
+		]
+	}
+	</text>
+	}
+	else
+	{
+		<text>var ytTop3 = null;</text>
+	}
+</script>
+@*@if (YoutubeVideoTop3.items.Count > 0)
+	{
+		<div class="row" id="youtubeTop3">
+			@foreach (Item item in YoutubeVideoTop3.items)
+			{
+				<div class="col-lg-3 col-md-3 col-sm-3" style="cursor:pointer" onclick="goYoutube('@item.id');">
+					<div class="card card-stats" style="margin-bottom:0px">
+						<div class="card-header card-header-warning card-header-icon">
+							<p class="card-category">@item.snippet.channelTitle</p>
+							<center>
+								<img src="@item.snippet.thumbnails.medium.url" style="width:@item.snippet.thumbnails.medium.width;height:@item.snippet.thumbnails.medium.height" />
+								<br />
+								<h3 class="card-title youtube-title">
+									@item.snippet.title
+								</h3>
+							</center>
+
+						</div>
+						<div class="card-footer">
+							<div class="stats youtube-description">
+								@item.snippet.description
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	}*@
+
+<div class="wrapper ">
+	<div class="main-panel">
+		<div class="top-panel">
+			<center style="line-height:50px">TV 편성표(@DateTime.Now.ToString("yyyy-MM-dd"))</center>
+		</div>
+		<div class="top-panel">
+			<!-- Slick 로테이션 메뉴 -->
+			<section id="slickMenu" class="regular slider"></section>
+			<!-- Slick 로테이션 메뉴 -->
+		</div>
+		<!-- Navbar -->
+		<nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute">
+			<div class="container-fluid">
+				<div style="width:100%">
+					<div class="input-group no-border">
+						<input type="text" id="txtSearch" placeholder="채널/프로그램 찾기" class="form-control">
+						<button class="btn btn-white btn-round btn-just-icon searchBtn">
+							<i class="material-icons">search</i>
+							<div class="ripple-container"></div>
+						</button>
+					</div>
+					<!-- Search Result Start -->
+					<div id="pnlSearchResult" class="alert alert-info alert-with-icon" data-notify="container" style="display:none">
+						<i class="material-icons" data-notify="icon">add_alert</i>
+						<span id="resultMessage" data-notify="message" style="font-size: 9pt"></span>
+					</div>
+					<!-- Search Result End -->
+				</div>
+			</div>
+		</nav>
+		<!-- End Navbar -->
+		<div class="content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-lg-12 col-md-12">
+						<div class="card">
+							<div style="margin-top:15px;width:100%;">
+								<center style="line-height:80px;">
+									<ins class="adsbygoogle"
+										 style="display:block"
+										 data-ad-client="ca-pub-9553320581194506"
+										 data-ad-slot="2795756408"
+										 data-ad-format="auto"></ins>
+									<script>
+										(adsbygoogle = window.adsbygoogle || []).push({});
+									</script>
+								</center>
+							</div>
+
+							<div class="card-body">
+								<div class="tab-content">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

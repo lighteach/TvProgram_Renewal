@@ -13,8 +13,9 @@ using System.IO;
 using System.Xml;
 using System.Web.Mvc;
 using System.Configuration;
-using TvProgramList.Models.TvProgram;
 using TvProgramList.Libs;
+using TvProgramList.Models.TvProgram;
+using TvProgramList.Models.YouTube;
 
 namespace TvProgramList.Controllers
 {
@@ -23,11 +24,19 @@ namespace TvProgramList.Controllers
 		// GET: TvProgram
 		public ActionResult Index()
 		{
-			return View();
+			YouTube yt = new YouTube();
+			YouTubeVideoTop3Model ytVideoTop3 = yt.GetYoutubeVideoTop3();
+			ViewBag.YoutubeVideoTop3 = ytVideoTop3;
+
+			//return View();
+			return View("~/Views/TvProgram/Index_Renewal.cshtml");
 		}
 
 		public ActionResult Test()
 		{
+			YouTube yt = new YouTube();
+			YouTubeVideoTop3Model ytVideoTop3 = yt.GetYoutubeVideoTop3();
+			ViewBag.YoutubeVideoTop3 = ytVideoTop3;
 			return View();
 		}
 
@@ -139,9 +148,24 @@ namespace TvProgramList.Controllers
 		public JsonResult GetOllehChannelList(int idx)
 		{
 			OllehTvProgram otp = new OllehTvProgram();
-			object[] arrObj = otp.GetChannels(idx);
+			//object[] arrObj = otp.GetChannels(idx);
+			List<OllehChannel> list = otp.GetChannels(idx).ToList();
 
-			return Json(arrObj, JsonRequestBehavior.AllowGet);
+			foreach (OllehChannel oc in list)
+			{
+				string testStr = oc.chName;
+				byte[] testBy = System.Text.Encoding.GetEncoding("euc-kr").GetBytes(testStr);
+
+				byte searchBy = testBy.ToList().FirstOrDefault();
+				int foundIdx = testBy.ToList().IndexOf(Convert.ToByte(63));
+				if (foundIdx != -1)
+				{
+					testStr = testStr.Substring(foundIdx + 1);
+					oc.chName = testStr;
+				}
+			}
+
+			return Json(list, JsonRequestBehavior.AllowGet);
 		}
 
 		public JsonResult GetOllehProgramList(string chNum, string chName)
@@ -214,6 +238,14 @@ namespace TvProgramList.Controllers
 				, FoundList = foundList
 			};
 			return Json(rtn, JsonRequestBehavior.AllowGet);
+		}
+
+		public JsonResult GetYoutubeVideoTop3()
+		{
+			YouTube yt = new YouTube();
+			YouTubeVideoTop3Model model = yt.GetYoutubeVideoTop3();
+
+			return Json(model, JsonRequestBehavior.AllowGet);
 		}
 
 

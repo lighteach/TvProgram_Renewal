@@ -63,6 +63,15 @@ var ShowModal = function (chNum, chName) {
 	$.get("/TvProgram/GetOllehProgramList?chNum=" + chNum + "&chName=" + chName, "", function (rtn) {
 		$("#programmList").empty();
 		var modalTitle = chName + "(" + chNum + ")";
+
+		//for (var i = 0; i < chName.length; i++) {
+		//	var keyCode = chName.substring(i, 1).charCodeAt();
+		//	console.log(keyCode);
+		//}
+
+        //if (isNaN(modalTitle.substring(0, 1)) == false) {
+        //    modalTitle = modalTitle.split(" ")[1];
+        //}
 		$(".modal-title").text(modalTitle);	// 모달 타이틀
 		if (rtn != null) {
 			var half = Math.ceil(rtn.length / 2) - 1;
@@ -176,19 +185,23 @@ $(document).ready(function () {
 				var tabAreaId = id + "Area";
 				$.get("/TvProgram/GetOllehChannelList?idx=" + tabIdx, "", function (rtn) {
 					var tabArea = "<div id=\"" + tabAreaId + "\" class=\"tab-pane\">";
-					tabArea += "<div class=\"row\">";
+					
 					if (rtn != null) {
 						$("#" + tabAreaId).remove();
+
+						tabArea += "<div class=\"row\">";
 						$.each(rtn, function (idx, ch) {
 							var btn = "<span class=\"badge\" channel-id=\"" + ch.chNum + "\" onclick=\"ShowModal('" + ch.chNum + "', '" + ch.chName + "')\" style=\"cursor:pointer\">" + ch.chName + "</span>";
 							tabArea += btn;
 						});
-						tabArea += "</div></div>";
-
+						tabArea += "</div>";
 					} else {
 						tabArea += "	<h3>편성표 업데이트 중입니다.</h3>"
-						tabArea += "</div>";
 					}
+					// 유츕 탑3 프로그램 리스트 밑에 집어넣기
+					tabArea += getYoutubeTop3();
+
+					tabArea += "</div>";
 
 					$(".tab-content").append(tabArea);
 					$(".tab-pane").removeClass("active").removeClass("show");
@@ -257,8 +270,51 @@ $(document).ready(function () {
 			$("#pnlSearchResult").data("status", "complete");
 		});
 	});
+
 });
 
 function searchCancel() {
 	$("#pnlSearchResult").fadeOut(300);
+}
+
+function goYoutube(ytID) {
+	window.open("https://www.youtube.com/watch?v=" + ytID, "ytwin", "");
+}
+
+function getYoutubeTop3() {
+	var ytForm = "<div class=\"col-lg-6 col-md-6 col-sm-6\" style=\"cursor:pointer\" onclick=\"goYoutube('{id}');\">"
+			+ "<div class=\"card card-stats\" style=\"margin-bottom:0px\">"
+			+ "		<div class=\"card-header card-header-warning card-header-icon\">"
+			+ "			<p class=\"card-category\">{channelTitle}</p>"
+			+ "			<center>"
+			//+ "				<img src=\"{url}\" width=\"{width}\" height=\"{height}\" />"
+		+ "				<img src=\"{url}\" style=\"width:100%;height:auto\" />"
+			+ "				<br />"
+			+ "				<h3 class=\"card-title youtube-title\">"
+			+ "					{title}"
+			+ "						</h3>"
+			+ "			</center>"
+			+ "		</div>"
+			+ "		<div class=\"card-footer\">"
+			+ "			<div class=\"stats youtube-description\">"
+			+ "				{description}"
+			+ "					</div>"
+			+ "		</div>"
+			+ "	</div>"
+			+ "</div>";
+	var html = "";
+	if (ytTop3 != null) {
+		$.each(ytTop3.items, function (idx, item) {
+			var swapFrm = ytForm.replace("{id}", item.id);
+			swapFrm = swapFrm.replace("{channelTitle}", item.channelTitle);
+			swapFrm = swapFrm.replace("{url}", item.url);
+			//swapFrm = swapFrm.replace("{width}", item.width);
+			//swapFrm = swapFrm.replace("{height}", item.height);
+			swapFrm = swapFrm.replace("{title}", item.title);
+			swapFrm = swapFrm.replace("{description}", item.description);
+			html += swapFrm;
+		});
+	}
+
+	return html;
 }

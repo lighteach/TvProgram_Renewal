@@ -25,6 +25,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -204,9 +205,12 @@
     </Compile>
     <Compile Include="Libs\OllehTvProgram.cs" />
     <Compile Include="Libs\OllehTvProgramByHtml.cs" />
+    <Compile Include="Libs\YouTube.cs" />
     <Compile Include="Models\TvProgram\ChannelModel.cs" />
     <Compile Include="Models\TvProgram\OllehProgram.cs" />
     <Compile Include="Models\TvProgram\ProgrammeModel.cs" />
+    <Compile Include="Models\YouTube\YouTubeApiInfo.cs" />
+    <Compile Include="Models\YouTube\YouTubeVideoTop3Model.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -389,6 +393,7 @@
     <Content Include="Content\material-dashboard\assets\slick\slick-theme.scss" />
     <Content Include="Content\material-dashboard\assets\slick\slick.less" />
     <Content Include="Content\material-dashboard\assets\slick\slick.scss" />
+    <Content Include="YouTubeApiInfo.js" />
     <None Include="Properties\PublishProfiles\웹게시.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -421,6 +426,7 @@
     <Content Include="Views\Shared\_Layout_Renewal.cshtml" />
     <Content Include="Views\Shared\_Css.cshtml" />
     <Content Include="Views\Shared\_Scripts.cshtml" />
+    <Content Include="Views\TvProgram\Index_Renewal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
